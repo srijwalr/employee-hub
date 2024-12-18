@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,20 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const form = useForm<EmployeeFormValues>();
+
+  // Fetch projects for the select dropdown
+  const { data: projects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, name")
+        .order("name");
+      
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const onSubmit = async (values: EmployeeFormValues) => {
     try {
@@ -115,9 +129,23 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Project (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Project name" {...field} />
-              </FormControl>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a project" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {projects?.map((project) => (
+                    <SelectItem key={project.id} value={project.name}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
