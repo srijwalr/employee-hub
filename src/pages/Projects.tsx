@@ -1,67 +1,41 @@
+import { useState } from "react";
 import { Layout } from "@/components/Layout";
+import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card } from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
+import AddProjectForm from "@/components/projects/AddProjectForm";
+import ProjectsTable from "@/components/projects/ProjectsTable";
 
 const Projects = () => {
-  // Mock data - in a real app, this would come from an API
-  const projects = [
-    {
-      id: 1,
-      name: "E-commerce Platform",
-      status: "In Progress",
-      team: ["John Doe", "Sarah Wilson"],
-      deadline: "2024-06-30",
-    },
-    {
-      id: 2,
-      name: "CRM System",
-      status: "Planning",
-      team: ["Jane Smith", "Tom Brown"],
-      deadline: "2024-08-15",
-    },
-    {
-      id: 3,
-      name: "Mobile App",
-      status: "In Progress",
-      team: ["Mike Johnson", "Lisa Anderson"],
-      deadline: "2024-07-20",
-    },
-  ];
+  const [open, setOpen] = useState(false);
 
   return (
     <Layout>
       <div className="space-y-8">
-        <h1 className="text-4xl font-bold text-foreground">Projects</h1>
-        
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Project Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Team Members</TableHead>
-                <TableHead>Deadline</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projects.map((project) => (
-                <TableRow key={project.id}>
-                  <TableCell className="font-medium">{project.name}</TableCell>
-                  <TableCell>{project.status}</TableCell>
-                  <TableCell>{project.team.join(", ")}</TableCell>
-                  <TableCell>{project.deadline}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-foreground">Projects</h1>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Project
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Project</DialogTitle>
+              </DialogHeader>
+              <AddProjectForm onSuccess={() => setOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
+        <ProjectsTable />
       </div>
     </Layout>
   );
