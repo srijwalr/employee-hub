@@ -1,7 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Layout } from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const stats = [
     { label: "Total Employees", value: "124" },
     { label: "Active Projects", value: "12" },
@@ -9,10 +17,33 @@ const Dashboard = () => {
     { label: "Project Completion", value: "87%" },
   ];
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+      });
+    } else {
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account.",
+      });
+      navigate("/login");
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-8">
-        <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+          <Button variant="outline" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign out
+          </Button>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat) => (
