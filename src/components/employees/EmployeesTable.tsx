@@ -22,7 +22,7 @@ type Employee = {
   name: string;
   role: string;
   project: string | null;
-  status: string | null;
+  status: string;
 };
 
 const EmployeesTable = () => {
@@ -59,7 +59,7 @@ const EmployeesTable = () => {
     },
   });
 
-  const statuses = ["Active", "On Leave", "Inactive"];
+  const statuses = ["Available", "Assigned", "On Leave", "Inactive"];
 
   return (
     <div className="space-y-4">
@@ -132,7 +132,7 @@ const EmployeesTable = () => {
                 </TableCell>
                 <TableCell>{employee.role}</TableCell>
                 <TableCell>{employee.project || "—"}</TableCell>
-                <TableCell>{employee.status || "Active"}</TableCell>
+                <TableCell>{employee.status}</TableCell>
               </TableRow>
             ))
           )}

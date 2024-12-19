@@ -24,6 +24,7 @@ type EmployeeFormValues = {
   name: string;
   role: string;
   project?: string;
+  status: string;
 };
 
 interface AddEmployeeFormProps {
@@ -33,9 +34,12 @@ interface AddEmployeeFormProps {
 const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const form = useForm<EmployeeFormValues>();
+  const form = useForm<EmployeeFormValues>({
+    defaultValues: {
+      status: "Available"
+    }
+  });
 
-  // Fetch projects for the select dropdown
   const { data: projects } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
@@ -144,6 +148,32 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
                       {project.name}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Available">Available</SelectItem>
+                  <SelectItem value="Assigned">Assigned</SelectItem>
+                  <SelectItem value="On Leave">On Leave</SelectItem>
+                  <SelectItem value="Inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
