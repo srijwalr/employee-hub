@@ -14,11 +14,11 @@ import { PlusCircle } from "lucide-react";
 import AddEmployeeForm from "@/components/employees/AddEmployeeForm";
 import EmployeesTable from "@/components/employees/EmployeesTable";
 import FreeResourcesTable from "@/components/employees/FreeResourcesTable";
-import AddFreeResourceForm from "@/components/employees/AddFreeResourceForm";
+import { AddRoleForm } from "@/components/roles/AddRoleForm";
 
 const Employees = () => {
   const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = useState(false);
-  const [isFreeResourceDialogOpen, setIsFreeResourceDialogOpen] = useState(false);
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
 
   return (
     <Layout>
@@ -40,18 +40,18 @@ const Employees = () => {
                 <AddEmployeeForm onSuccess={() => setIsEmployeeDialogOpen(false)} />
               </DialogContent>
             </Dialog>
-            <Dialog open={isFreeResourceDialogOpen} onOpenChange={setIsFreeResourceDialogOpen}>
+            <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Free Resource
+                  Add Role
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Add Free Resource</DialogTitle>
+                  <DialogTitle>Add New Role</DialogTitle>
                 </DialogHeader>
-                <AddFreeResourceForm onSuccess={() => setIsFreeResourceDialogOpen(false)} />
+                <AddRoleForm onSuccess={() => setIsRoleDialogOpen(false)} />
               </DialogContent>
             </Dialog>
           </div>

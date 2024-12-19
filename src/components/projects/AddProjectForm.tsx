@@ -66,7 +66,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
     }
   };
 
-  const allocationOptions = Array.from({ length: 11 }, (_, i) => i * 10);
+  const allocationOptions = Array.from({ length: 10 }, (_, i) => (i + 1) * 10);
 
   return (
     <Form {...form}>
@@ -128,7 +128,7 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
           name="allocation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Allocation (%)</FormLabel>
+              <FormLabel>Allocation</FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
