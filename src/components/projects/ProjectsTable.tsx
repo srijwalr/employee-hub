@@ -38,7 +38,10 @@ const ProjectsTable = () => {
         <TableHeader>
           <TableRow>
             <TableHead>Project Name</TableHead>
+            <TableHead>Code</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Allocation (%)</TableHead>
+            <TableHead>Work Status</TableHead>
             <TableHead>Deadline</TableHead>
           </TableRow>
         </TableHeader>
@@ -46,7 +49,10 @@ const ProjectsTable = () => {
           {projects.map((project) => (
             <TableRow key={project.id}>
               <TableCell className="font-medium">{project.name}</TableCell>
+              <TableCell>{project.code}</TableCell>
               <TableCell>{project.status}</TableCell>
+              <TableCell>{project.allocation || "—"}%</TableCell>
+              <TableCell>{project.work_status_comment || "—"}</TableCell>
               <TableCell>
                 {project.deadline
                   ? new Date(project.deadline).toLocaleDateString()

@@ -38,25 +38,34 @@ export type Database = {
       }
       projects: {
         Row: {
+          allocation: number | null
+          code: string
           created_at: string
           deadline: string | null
           id: string
           name: string
           status: string | null
+          work_status_comment: string | null
         }
         Insert: {
+          allocation?: number | null
+          code?: string
           created_at?: string
           deadline?: string | null
           id?: string
           name: string
           status?: string | null
+          work_status_comment?: string | null
         }
         Update: {
+          allocation?: number | null
+          code?: string
           created_at?: string
           deadline?: string | null
           id?: string
           name?: string
           status?: string | null
+          work_status_comment?: string | null
         }
         Relationships: []
       }

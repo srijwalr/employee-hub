@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -22,8 +23,11 @@ import {
 
 type ProjectFormValues = {
   name: string;
+  code: string;
   status: string;
+  allocation: string;
   deadline: string;
+  work_status_comment: string;
 };
 
 interface AddProjectFormProps {
@@ -37,7 +41,10 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
 
   const onSubmit = async (values: ProjectFormValues) => {
     try {
-      const { error } = await supabase.from("projects").insert([values]);
+      const { error } = await supabase.from("projects").insert([{
+        ...values,
+        allocation: values.allocation ? parseInt(values.allocation) : null,
+      }]);
       
       if (error) throw error;
 
@@ -59,6 +66,8 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
     }
   };
 
+  const allocationOptions = Array.from({ length: 11 }, (_, i) => i * 10);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -70,6 +79,19 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
               <FormLabel>Name</FormLabel>
               <FormControl>
                 <Input placeholder="Project name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="code"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Project Code</FormLabel>
+              <FormControl>
+                <Input placeholder="PRJ-001" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -103,12 +125,55 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
         />
         <FormField
           control={form.control}
+          name="allocation"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Allocation (%)</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select allocation percentage" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {allocationOptions.map((value) => (
+                    <SelectItem key={value} value={value.toString()}>
+                      {value}%
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="deadline"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Deadline</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="work_status_comment"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Work Status Comment</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Enter work status details..."
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
