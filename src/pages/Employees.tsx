@@ -9,36 +9,67 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircle } from "lucide-react";
 import AddEmployeeForm from "@/components/employees/AddEmployeeForm";
 import EmployeesTable from "@/components/employees/EmployeesTable";
+import FreeResourcesTable from "@/components/employees/FreeResourcesTable";
+import AddFreeResourceForm from "@/components/employees/AddFreeResourceForm";
 
 const Employees = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = useState(false);
+  const [isFreeResourceDialogOpen, setIsFreeResourceDialogOpen] = useState(false);
 
   return (
     <Layout>
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-bold text-foreground">Employees</h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Employee
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Employee</DialogTitle>
-              </DialogHeader>
-              <AddEmployeeForm onSuccess={() => setIsDialogOpen(false)} />
-            </DialogContent>
-          </Dialog>
+          <div className="space-x-4">
+            <Dialog open={isEmployeeDialogOpen} onOpenChange={setIsEmployeeDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Employee
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Employee</DialogTitle>
+                </DialogHeader>
+                <AddEmployeeForm onSuccess={() => setIsEmployeeDialogOpen(false)} />
+              </DialogContent>
+            </Dialog>
+            <Dialog open={isFreeResourceDialogOpen} onOpenChange={setIsFreeResourceDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Add Free Resource
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Free Resource</DialogTitle>
+                </DialogHeader>
+                <AddFreeResourceForm onSuccess={() => setIsFreeResourceDialogOpen(false)} />
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         <Card>
-          <EmployeesTable />
+          <Tabs defaultValue="employees" className="p-4">
+            <TabsList>
+              <TabsTrigger value="employees">Employees</TabsTrigger>
+              <TabsTrigger value="free-resources">Free Resources</TabsTrigger>
+            </TabsList>
+            <TabsContent value="employees">
+              <EmployeesTable />
+            </TabsContent>
+            <TabsContent value="free-resources">
+              <FreeResourcesTable />
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </Layout>

@@ -36,6 +36,41 @@ export type Database = {
         }
         Relationships: []
       }
+      free_resources: {
+        Row: {
+          available_from: string
+          available_until: string | null
+          created_at: string
+          employee_id: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          available_from?: string
+          available_until?: string | null
+          created_at?: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          available_from?: string
+          available_until?: string | null
+          created_at?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "free_resources_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           allocation: number | null
