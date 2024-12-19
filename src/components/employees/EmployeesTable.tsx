@@ -66,14 +66,14 @@ const EmployeesTable = () => {
       <div className="flex gap-4">
         <div className="w-[200px]">
           <Select
-            value={selectedProject || ""}
-            onValueChange={(value) => setSelectedProject(value || null)}
+            value={selectedProject || "all"}
+            onValueChange={(value) => setSelectedProject(value === "all" ? null : value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Filter by project" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Projects</SelectItem>
+              <SelectItem value="all">All Projects</SelectItem>
               {projects?.map((project) => (
                 <SelectItem key={project.name} value={project.name}>
                   {project.name}
@@ -84,14 +84,14 @@ const EmployeesTable = () => {
         </div>
         <div className="w-[200px]">
           <Select
-            value={selectedStatus || ""}
-            onValueChange={(value) => setSelectedStatus(value || null)}
+            value={selectedStatus || "all"}
+            onValueChange={(value) => setSelectedStatus(value === "all" ? null : value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               {statuses.map((status) => (
                 <SelectItem key={status} value={status}>
                   {status}
