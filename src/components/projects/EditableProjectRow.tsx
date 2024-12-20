@@ -14,7 +14,7 @@ interface Project {
   code: string;
   status: string | null;
   allocation: number | null;
-  work_status_comment: string | null;
+  updates: string | null;
   deadline: string | null;
 }
 
@@ -86,11 +86,11 @@ const EditableProjectRow = ({
       </td>
       <td className="p-4">
         <Input
-          value={editValues.work_status_comment || ""}
+          value={editValues.updates || ""}
           onChange={(e) =>
             onEditValuesChange({
               ...editValues,
-              work_status_comment: e.target.value,
+              updates: e.target.value,
             })
           }
         />

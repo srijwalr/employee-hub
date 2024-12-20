@@ -17,6 +17,7 @@ export type Database = {
           project: string | null
           role: string
           status: string | null
+          updates: string | null
         }
         Insert: {
           created_at?: string
@@ -25,6 +26,7 @@ export type Database = {
           project?: string | null
           role: string
           status?: string | null
+          updates?: string | null
         }
         Update: {
           created_at?: string
@@ -33,6 +35,7 @@ export type Database = {
           project?: string | null
           role?: string
           status?: string | null
+          updates?: string | null
         }
         Relationships: []
       }
@@ -45,7 +48,7 @@ export type Database = {
           id: string
           name: string
           status: string | null
-          work_status_comment: string | null
+          updates: string | null
         }
         Insert: {
           allocation?: number | null
@@ -55,7 +58,7 @@ export type Database = {
           id?: string
           name: string
           status?: string | null
-          work_status_comment?: string | null
+          updates?: string | null
         }
         Update: {
           allocation?: number | null
@@ -65,7 +68,7 @@ export type Database = {
           id?: string
           name?: string
           status?: string | null
-          work_status_comment?: string | null
+          updates?: string | null
         }
         Relationships: []
       }

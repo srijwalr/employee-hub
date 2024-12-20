@@ -20,7 +20,7 @@ interface Project {
   code: string;
   status: string | null;
   allocation: number | null;
-  work_status_comment: string | null;
+  updates: string | null;
   deadline: string | null;
 }
 
@@ -100,7 +100,7 @@ const ProjectsTable = () => {
             <TableHead>Code</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Allocation (%)</TableHead>
-            <TableHead>Work Status</TableHead>
+            <TableHead>Updates</TableHead>
             <TableHead>Deadline</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -122,7 +122,7 @@ const ProjectsTable = () => {
                   <TableCell>{project.code}</TableCell>
                   <TableCell>{project.status}</TableCell>
                   <TableCell>{project.allocation || "—"}%</TableCell>
-                  <TableCell>{project.work_status_comment || "—"}</TableCell>
+                  <TableCell>{project.updates || "—"}</TableCell>
                   <TableCell>
                     {project.deadline
                       ? new Date(project.deadline).toLocaleDateString()

@@ -27,7 +27,7 @@ type ProjectFormValues = {
   status: string;
   allocation: string;
   deadline: string;
-  work_status_comment: string;
+  updates: string;
 };
 
 interface AddProjectFormProps {
@@ -165,13 +165,13 @@ const AddProjectForm = ({ onSuccess }: AddProjectFormProps) => {
         />
         <FormField
           control={form.control}
-          name="work_status_comment"
+          name="updates"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Work Status Comment</FormLabel>
+              <FormLabel>Updates</FormLabel>
               <FormControl>
                 <Textarea 
-                  placeholder="Enter work status details..."
+                  placeholder="Enter project updates..."
                   {...field}
                 />
               </FormControl>
