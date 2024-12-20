@@ -174,6 +174,7 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
                   <SelectItem value="Assigned">Assigned</SelectItem>
                   <SelectItem value="On Leave">On Leave</SelectItem>
                   <SelectItem value="Inactive">Inactive</SelectItem>
+                  <SelectItem value="On bench">On bench</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

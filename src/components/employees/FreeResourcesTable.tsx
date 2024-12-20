@@ -23,7 +23,7 @@ const FreeResourcesTable = () => {
       const { data, error } = await supabase
         .from("employees")
         .select("*")
-        .eq("status", "Available")
+        .or('status.eq.Available,status.eq.On bench')
         .order("created_at", { ascending: false });
       
       if (error) throw error;
