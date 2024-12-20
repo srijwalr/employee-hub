@@ -9,9 +9,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircle } from "lucide-react";
 import AddEmployeeForm from "@/components/employees/AddEmployeeForm";
 import EmployeesTable from "@/components/employees/EmployeesTable";
+import FreeResourcesTable from "@/components/employees/FreeResourcesTable";
 import { AddRoleForm } from "@/components/roles/AddRoleForm";
 
 const Employees = () => {
@@ -55,8 +57,19 @@ const Employees = () => {
           </div>
         </div>
 
-        <Card className="p-4">
-          <EmployeesTable />
+        <Card>
+          <Tabs defaultValue="employees" className="p-4">
+            <TabsList>
+              <TabsTrigger value="employees">Employees</TabsTrigger>
+              <TabsTrigger value="free-resources">Free Resources</TabsTrigger>
+            </TabsList>
+            <TabsContent value="employees">
+              <EmployeesTable />
+            </TabsContent>
+            <TabsContent value="free-resources">
+              <FreeResourcesTable />
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </Layout>

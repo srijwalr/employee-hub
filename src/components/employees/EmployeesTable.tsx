@@ -15,7 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { Filter } from "lucide-react";
 
 type Employee = {
   id: string;
@@ -63,43 +70,23 @@ const EmployeesTable = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
-        <div className="w-[200px]">
-          <Select
-            value={selectedProject || "all"}
-            onValueChange={(value) => setSelectedProject(value === "all" ? null : value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by project" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Projects</SelectItem>
-              {projects?.map((project) => (
-                <SelectItem key={project.name} value={project.name}>
-                  {project.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="w-[200px]">
-          <Select
-            value={selectedStatus || "all"}
-            onValueChange={(value) => setSelectedStatus(value === "all" ? null : value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              {statuses.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="w-[200px]">
+        <Select
+          value={selectedProject || "all"}
+          onValueChange={(value) => setSelectedProject(value === "all" ? null : value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Filter by project" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Projects</SelectItem>
+            {projects?.map((project) => (
+              <SelectItem key={project.name} value={project.name}>
+                {project.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <Table>
@@ -108,7 +95,27 @@ const EmployeesTable = () => {
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Assigned Project</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2">
+                  Status
+                  <Filter className="h-4 w-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setSelectedStatus(null)}>
+                    All Statuses
+                  </DropdownMenuItem>
+                  {statuses.map((status) => (
+                    <DropdownMenuItem
+                      key={status}
+                      onClick={() => setSelectedStatus(status)}
+                    >
+                      {status}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
