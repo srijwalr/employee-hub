@@ -9,30 +9,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { Filter, Pencil, Check, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-type Employee = {
-  id: string;
-  name: string;
-  role: string;
-  project: string | null;
-  status: string;
-};
+import { Employee } from "@/types/employee";
+import ProjectFilter from "./ProjectFilter";
+import EditableEmployeeRow from "./EditableEmployeeRow";
+import DisplayEmployeeRow from "./DisplayEmployeeRow";
 
 const EmployeesTable = () => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -102,8 +90,6 @@ const EmployeesTable = () => {
     },
   });
 
-  const statuses = ["Available", "Assigned", "On Leave", "Inactive", "On bench"];
-
   const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee.id);
     setEditValues({
@@ -123,26 +109,15 @@ const EmployeesTable = () => {
     setEditValues({});
   };
 
+  const statuses = ["Available", "Assigned", "On Leave", "Inactive", "On bench"];
+
   return (
     <div className="space-y-4">
-      <div className="w-[200px]">
-        <Select
-          value={selectedProject || "all"}
-          onValueChange={(value) => setSelectedProject(value === "all" ? null : value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Filter by project" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Projects</SelectItem>
-            {projects?.map((project) => (
-              <SelectItem key={project.name} value={project.name}>
-                {project.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <ProjectFilter
+        projects={projects}
+        selectedProject={selectedProject}
+        onProjectChange={setSelectedProject}
+      />
 
       <Table>
         <TableHeader>
@@ -190,102 +165,21 @@ const EmployeesTable = () => {
           ) : (
             employees?.map((employee) => (
               <TableRow key={employee.id}>
-                <TableCell>
-                  {editingEmployee === employee.id ? (
-                    <Input
-                      value={editValues.name || ""}
-                      onChange={(e) =>
-                        setEditValues({ ...editValues, name: e.target.value })
-                      }
-                    />
-                  ) : (
-                    employee.name
-                  )}
-                </TableCell>
-                <TableCell>
-                  {editingEmployee === employee.id ? (
-                    <Input
-                      value={editValues.role || ""}
-                      onChange={(e) =>
-                        setEditValues({ ...editValues, role: e.target.value })
-                      }
-                    />
-                  ) : (
-                    employee.role
-                  )}
-                </TableCell>
-                <TableCell>
-                  {editingEmployee === employee.id ? (
-                    <Select
-                      value={editValues.project || ""}
-                      onValueChange={(value) =>
-                        setEditValues({ ...editValues, project: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select project" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">No Project</SelectItem>
-                        {projects?.map((project) => (
-                          <SelectItem key={project.name} value={project.name}>
-                            {project.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    employee.project || "—"
-                  )}
-                </TableCell>
-                <TableCell>
-                  {editingEmployee === employee.id ? (
-                    <Select
-                      value={editValues.status || ""}
-                      onValueChange={(value) =>
-                        setEditValues({ ...editValues, status: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statuses.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {status}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    employee.status
-                  )}
-                </TableCell>
-                <TableCell>
-                  {editingEmployee === employee.id ? (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleSave(employee.id)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <Check className="h-4 w-4 text-green-500" />
-                      </button>
-                      <button
-                        onClick={handleCancel}
-                        className="p-1 hover:bg-gray-100 rounded"
-                      >
-                        <X className="h-4 w-4 text-red-500" />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleEdit(employee)}
-                      className="p-1 hover:bg-gray-100 rounded"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                  )}
-                </TableCell>
+                {editingEmployee === employee.id ? (
+                  <EditableEmployeeRow
+                    employee={employee}
+                    editValues={editValues}
+                    projects={projects}
+                    onEditValuesChange={setEditValues}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
+                  />
+                ) : (
+                  <DisplayEmployeeRow
+                    employee={employee}
+                    onEdit={handleEdit}
+                  />
+                )}
               </TableRow>
             ))
           )}

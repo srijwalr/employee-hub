@@ -8,13 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-type Employee = {
-  id: string;
-  name: string;
-  role: string;
-  status: string;
-};
+import { Employee } from "@/types/employee";
 
 const FreeResourcesTable = () => {
   const { data: employees, isLoading } = useQuery({
