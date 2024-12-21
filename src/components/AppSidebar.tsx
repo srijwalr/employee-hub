@@ -1,4 +1,4 @@
-import { Users, Briefcase, PieChart } from "lucide-react";
+import { Users, Briefcase, LayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,9 +12,9 @@ import {
 import { Link } from "react-router-dom";
 
 const menuItems = [
-  { title: "Employees", icon: Users, path: "/" },
+  { title: "Dashboard", icon: LayoutDashboard, path: "/" },
+  { title: "Employees", icon: Users, path: "/employees" },
   { title: "Projects", icon: Briefcase, path: "/projects" },
-  { title: "Analytics", icon: PieChart, path: "/analytics" },
 ];
 
 export function AppSidebar() {
