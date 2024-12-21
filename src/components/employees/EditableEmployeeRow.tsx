@@ -30,22 +30,8 @@ const EditableEmployeeRow = ({
 
   return (
     <>
-      <td className="p-4">
-        <Input
-          value={editValues.name || ""}
-          onChange={(e) =>
-            onEditValuesChange({ ...editValues, name: e.target.value })
-          }
-        />
-      </td>
-      <td className="p-4">
-        <Input
-          value={editValues.role || ""}
-          onChange={(e) =>
-            onEditValuesChange({ ...editValues, role: e.target.value })
-          }
-        />
-      </td>
+      <td className="p-4 font-medium">{employee.name}</td>
+      <td className="p-4">{employee.role}</td>
       <td className="p-4">
         <Select
           value={editValues.project || "no-project"}

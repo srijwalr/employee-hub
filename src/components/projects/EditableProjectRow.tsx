@@ -37,14 +37,7 @@ const EditableProjectRow = ({
 
   return (
     <>
-      <td className="p-4">
-        <Input
-          value={editValues.name || ""}
-          onChange={(e) =>
-            onEditValuesChange({ ...editValues, name: e.target.value })
-          }
-        />
-      </td>
+      <td className="p-4 font-medium">{project.name}</td>
       <td className="p-4">
         <Input
           value={editValues.code || ""}
