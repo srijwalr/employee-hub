@@ -24,11 +24,12 @@ const Dashboard = () => {
   const { data: projectSummaries, isLoading } = useQuery({
     queryKey: ["projectSummaries"],
     queryFn: async () => {
-      const { data: employees } = await supabase
+      const { data: employees, error } = await supabase
         .from("employees")
         .select("*")
         .not("project", "is", null);
 
+      if (error) throw error;
       if (!employees) return [];
 
       const projectMap = new Map<string, ProjectSummary>();
@@ -96,12 +97,12 @@ const Dashboard = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {project.teamMembers.map((member, index) => (
                         member.updates && (
                           <div key={index} className="text-sm">
                             <span className="font-medium">{member.name}:</span>
-                            <span className="text-muted-foreground"> {member.updates}</span>
+                            <span className="text-muted-foreground ml-2">{member.updates}</span>
                           </div>
                         )
                       ))}
