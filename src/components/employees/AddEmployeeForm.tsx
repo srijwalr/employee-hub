@@ -55,6 +55,11 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
 
   const onSubmit = async (values: EmployeeFormValues) => {
     try {
+      // If project is selected, automatically set status to "Assigned"
+      if (values.project) {
+        values.status = "Assigned";
+      }
+
       const { error } = await supabase.from("employees").insert([values]);
       
       if (error) throw error;
@@ -134,7 +139,11 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
             <FormItem>
               <FormLabel>Project (Optional)</FormLabel>
               <Select
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  // Update status when project changes
+                  form.setValue("status", value ? "Assigned" : "Available");
+                }}
                 defaultValue={field.value}
               >
                 <FormControl>

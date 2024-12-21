@@ -26,6 +26,7 @@ const EditableEmployeeRow = ({
   onSave,
   onCancel,
 }: EditableEmployeeRowProps) => {
+  // Define the allowed status values according to the database constraint
   const statuses = ["Available", "Assigned", "On Leave", "Inactive", "On bench"];
 
   return (
@@ -39,6 +40,8 @@ const EditableEmployeeRow = ({
             onEditValuesChange({
               ...editValues,
               project: value === "no-project" ? null : value,
+              // Update status to "Available" if no project is selected
+              status: value === "no-project" ? "Available" : "Assigned",
             })
           }
         >
@@ -57,7 +60,7 @@ const EditableEmployeeRow = ({
       </td>
       <td className="p-4">
         <Select
-          value={editValues.status || ""}
+          value={editValues.status || "Available"}
           onValueChange={(value) =>
             onEditValuesChange({ ...editValues, status: value })
           }
