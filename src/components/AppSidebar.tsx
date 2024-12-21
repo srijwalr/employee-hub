@@ -3,8 +3,8 @@ import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -23,7 +23,13 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>
-            <span className="text-primary font-bold">TechStaff</span>
+            <Link to="/" className="block px-2 py-4">
+              <img 
+                src="/lovable-uploads/048c5963-c784-4582-9199-9ff4d8939840.png" 
+                alt="Tegain Logo" 
+                className="h-8 w-auto transition-opacity hover:opacity-80"
+              />
+            </Link>
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
