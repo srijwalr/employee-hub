@@ -5,7 +5,8 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    navigate("/projects");
+    // Immediately redirect to /employees since that's the current route
+    navigate("/employees", { replace: true });
   }, [navigate]);
 
   return null;
