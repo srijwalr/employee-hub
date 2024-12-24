@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Edit } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import EditableProjectRow from "./EditableProjectRow";
+import { Badge } from "@/components/ui/badge";
 
 interface Project {
   id: string;
@@ -24,13 +25,19 @@ interface Project {
   deadline: string | null;
 }
 
+interface Employee {
+  id: string;
+  name: string;
+  project: string | null;
+}
+
 const ProjectsTable = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<Project>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: projects, isLoading } = useQuery({
+  const { data: projects, isLoading: projectsLoading } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -40,6 +47,18 @@ const ProjectsTable = () => {
 
       if (error) throw error;
       return data as Project[];
+    },
+  });
+
+  const { data: employees } = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, name, project");
+
+      if (error) throw error;
+      return data as Employee[];
     },
   });
 
@@ -83,7 +102,12 @@ const ProjectsTable = () => {
     setEditValues({});
   };
 
-  if (isLoading) {
+  const getProjectMembers = (projectCode: string) => {
+    if (!employees) return [];
+    return employees.filter(emp => emp.project === projectCode);
+  };
+
+  if (projectsLoading) {
     return <div>Loading projects...</div>;
   }
 
@@ -100,6 +124,7 @@ const ProjectsTable = () => {
             <TableHead>Code</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Allocation (%)</TableHead>
+            <TableHead>Team Members</TableHead>
             <TableHead>Updates</TableHead>
             <TableHead>Deadline</TableHead>
             <TableHead>Actions</TableHead>
@@ -122,6 +147,15 @@ const ProjectsTable = () => {
                   <TableCell>{project.code}</TableCell>
                   <TableCell>{project.status}</TableCell>
                   <TableCell>{project.allocation || "—"}%</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {getProjectMembers(project.code).map((member) => (
+                        <Badge key={member.id} variant="secondary">
+                          {member.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
                   <TableCell>{project.updates || "—"}</TableCell>
                   <TableCell>
                     {project.deadline
