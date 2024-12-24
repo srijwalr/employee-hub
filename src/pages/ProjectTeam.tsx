@@ -13,12 +13,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 const ProjectTeam = () => {
   const { projectCode } = useParams();
   const navigate = useNavigate();
 
-  const { data: project } = useQuery({
+  const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ["project", projectCode],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,7 +33,7 @@ const ProjectTeam = () => {
     },
   });
 
-  const { data: teamMembers } = useQuery({
+  const { data: teamMembers, isLoading: membersLoading } = useQuery({
     queryKey: ["team-members", projectCode],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -45,6 +46,16 @@ const ProjectTeam = () => {
     },
   });
 
+  if (projectLoading || membersLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-full">
+          Loading...
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="space-y-8">
@@ -52,9 +63,19 @@ const ProjectTeam = () => {
           <Button variant="outline" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-4xl font-bold">
-            Team Members - {project?.name || projectCode}
-          </h1>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold">
+              Team Members - {project?.name || projectCode}
+            </h1>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">{project?.status || "No status"}</Badge>
+              {project?.allocation && (
+                <Badge variant="outline">
+                  Allocation: {project.allocation}%
+                </Badge>
+              )}
+            </div>
+          </div>
         </div>
 
         <Card>
@@ -72,13 +93,18 @@ const ProjectTeam = () => {
                 <TableRow key={member.id}>
                   <TableCell className="font-medium">{member.name}</TableCell>
                   <TableCell>{member.role}</TableCell>
-                  <TableCell>{member.status}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{member.status || "No status"}</Badge>
+                  </TableCell>
                   <TableCell>{member.updates || "—"}</TableCell>
                 </TableRow>
               ))}
-              {!teamMembers?.length && (
+              {(!teamMembers || teamMembers.length === 0) && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={4}
+                    className="text-center text-muted-foreground"
+                  >
                     No team members assigned to this project
                   </TableCell>
                 </TableRow>
