@@ -23,22 +23,27 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>
-            <Link to="/" className="block px-2 py-4">
+            <Link to="/" className="block px-4 py-6 border-b border-sidebar-border">
               <img 
                 src="/lovable-uploads/048c5963-c784-4582-9199-9ff4d8939840.png" 
                 alt="Tegain Logo" 
-                className="h-8 w-auto transition-opacity hover:opacity-80"
+                className="h-8 w-auto transition-all duration-300 hover:opacity-80"
               />
             </Link>
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="pt-4">
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link to={item.path} className="flex items-center gap-2">
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                    <Link 
+                      to={item.path} 
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors duration-200 hover:bg-sidebar-accent rounded-md group"
+                    >
+                      <item.icon className="h-4 w-4 text-sidebar-foreground/70 group-hover:text-sidebar-accent-foreground" />
+                      <span className="text-sidebar-foreground/90 group-hover:text-sidebar-accent-foreground">
+                        {item.title}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
