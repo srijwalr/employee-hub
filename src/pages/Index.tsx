@@ -5,11 +5,12 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Immediately redirect to /employees since that's the current route
+    // Immediately redirect to /employees with replace to avoid adding to history
     navigate("/employees", { replace: true });
   }, [navigate]);
 
-  return null;
+  // Render a loading state while redirecting
+  return <div>Loading...</div>;
 };
 
 export default Index;
