@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -10,10 +11,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
-import { Edit } from "lucide-react";
+import { Edit, Users } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import EditableProjectRow from "./EditableProjectRow";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface Project {
   id: string;
@@ -32,6 +34,7 @@ interface Employee {
 }
 
 const ProjectsTable = () => {
+  const navigate = useNavigate();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<Project>>({});
   const { toast } = useToast();
@@ -148,12 +151,26 @@ const ProjectsTable = () => {
                   <TableCell>{project.status}</TableCell>
                   <TableCell>{project.allocation || "—"}%</TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {getProjectMembers(project.code).map((member) => (
-                        <Badge key={member.id} variant="secondary">
-                          {member.name}
-                        </Badge>
-                      ))}
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap gap-1">
+                        {getProjectMembers(project.code).slice(0, 2).map((member) => (
+                          <Badge key={member.id} variant="secondary">
+                            {member.name}
+                          </Badge>
+                        ))}
+                        {getProjectMembers(project.code).length > 2 && (
+                          <Badge variant="secondary">
+                            +{getProjectMembers(project.code).length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate(`/projects/${project.code}/team`)}
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                   <TableCell>{project.updates || "—"}</TableCell>
