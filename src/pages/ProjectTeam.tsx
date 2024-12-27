@@ -89,17 +89,18 @@ const ProjectTeam = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {teamMembers?.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell className="font-medium">{member.name}</TableCell>
-                  <TableCell>{member.role}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{member.status || "No status"}</Badge>
-                  </TableCell>
-                  <TableCell>{member.updates || "—"}</TableCell>
-                </TableRow>
-              ))}
-              {(!teamMembers || teamMembers.length === 0) && (
+              {teamMembers && teamMembers.length > 0 ? (
+                teamMembers.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell className="font-medium">{member.name}</TableCell>
+                    <TableCell>{member.role}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{member.status || "No status"}</Badge>
+                    </TableCell>
+                    <TableCell>{member.updates || "—"}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
                 <TableRow>
                   <TableCell
                     colSpan={4}
