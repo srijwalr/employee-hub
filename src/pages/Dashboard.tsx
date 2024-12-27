@@ -11,18 +11,25 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
-type ProjectSummary = {
-  projectName: string;
-  teamMembers: Array<{
-    name: string;
-    role: string;
-    updates: string | null;
-  }>;
-};
+interface Project {
+  id: string;
+  name: string;
+  code: string;
+  status: string | null;
+  allocation: number | null;
+  deadline: string | null;
+}
+
+interface Employee {
+  id: string;
+  name: string;
+  project: string | null;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -45,46 +52,47 @@ const Dashboard = () => {
     }
   };
 
-  const { data: projectSummaries, isLoading } = useQuery({
-    queryKey: ["projectSummaries"],
+  const { data: projects, isLoading: projectsLoading } = useQuery({
+    queryKey: ["projects"],
     queryFn: async () => {
-      const { data: employees, error } = await supabase
-        .from("employees")
+      const { data, error } = await supabase
+        .from("projects")
         .select("*")
-        .not("project", "is", null);
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
-      if (!employees) return [];
-
-      const projectMap = new Map<string, ProjectSummary>();
-
-      employees.forEach((employee) => {
-        if (!employee.project) return;
-
-        if (!projectMap.has(employee.project)) {
-          projectMap.set(employee.project, {
-            projectName: employee.project,
-            teamMembers: [],
-          });
-        }
-
-        const project = projectMap.get(employee.project)!;
-        project.teamMembers.push({
-          name: employee.name,
-          role: employee.role,
-          updates: employee.updates,
-        });
-      });
-
-      return Array.from(projectMap.values());
+      return data as Project[];
     },
   });
 
-  if (isLoading) {
+  const { data: employees } = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, name, project");
+
+      if (error) throw error;
+      return data as Employee[];
+    },
+  });
+
+  const getProjectMembers = (projectCode: string) => {
+    if (!employees) return [];
+    return employees.filter(emp => emp.project === projectCode);
+  };
+
+  if (projectsLoading) {
     return (
       <Layout>
         <div className="space-y-8">
-          <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign out
+            </Button>
+          </div>
           <p>Loading project summaries...</p>
         </div>
       </Layout>
@@ -101,42 +109,54 @@ const Dashboard = () => {
             Sign out
           </Button>
         </div>
-        <Card className="p-6">
+        <Card>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Project</TableHead>
+                <TableHead>Project Name</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Team Members</TableHead>
-                <TableHead>Current Updates</TableHead>
+                <TableHead>Allocation (%)</TableHead>
+                <TableHead>Deadline</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {projectSummaries?.map((project) => (
-                <TableRow key={project.projectName}>
-                  <TableCell className="font-medium">
-                    {project.projectName}
+              {projects?.map((project) => (
+                <TableRow key={project.id}>
+                  <TableCell className="font-medium">{project.name}</TableCell>
+                  <TableCell>{project.code}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">{project.status}</Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="space-y-1">
-                      {project.teamMembers.map((member, index) => (
-                        <div key={index} className="text-sm">
-                          <span className="font-medium">{member.name}</span>
-                          <span className="text-muted-foreground"> - {member.role}</span>
-                        </div>
-                      ))}
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap gap-1">
+                        {getProjectMembers(project.code).slice(0, 2).map((member) => (
+                          <Badge key={member.id} variant="outline">
+                            {member.name}
+                          </Badge>
+                        ))}
+                        {getProjectMembers(project.code).length > 2 && (
+                          <Badge variant="outline">
+                            +{getProjectMembers(project.code).length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate(`/projects/${project.code}/team`)}
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
+                  <TableCell>{project.allocation || "—"}%</TableCell>
                   <TableCell>
-                    <div className="space-y-2">
-                      {project.teamMembers.map((member, index) => (
-                        member.updates && (
-                          <div key={index} className="text-sm">
-                            <span className="font-medium">{member.name}:</span>
-                            <span className="text-muted-foreground ml-2">{member.updates}</span>
-                          </div>
-                        )
-                      ))}
-                    </div>
+                    {project.deadline
+                      ? new Date(project.deadline).toLocaleDateString()
+                      : "No deadline"}
                   </TableCell>
                 </TableRow>
               ))}
