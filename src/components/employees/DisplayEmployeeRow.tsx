@@ -13,6 +13,7 @@ const DisplayEmployeeRow = ({ employee, onEdit }: DisplayEmployeeRowProps) => {
       <td className="p-4">{employee.role}</td>
       <td className="p-4">{employee.project || "—"}</td>
       <td className="p-4">{employee.status}</td>
+      <td className="p-4">{employee.updates || "—"}</td>
       <td className="p-4">
         <button
           onClick={() => onEdit(employee)}

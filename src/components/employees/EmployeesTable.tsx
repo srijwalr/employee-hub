@@ -97,6 +97,7 @@ const EmployeesTable = () => {
       role: employee.role,
       project: employee.project,
       status: employee.status,
+      updates: employee.updates,
     });
   };
 
@@ -146,19 +147,20 @@ const EmployeesTable = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableHead>
+            <TableHead>Updates</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center">
+              <TableCell colSpan={6} className="text-center">
                 Loading...
               </TableCell>
             </TableRow>
           ) : employees?.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center">
+              <TableCell colSpan={6} className="text-center">
                 No employees found
               </TableCell>
             </TableRow>

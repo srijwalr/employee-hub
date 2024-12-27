@@ -12,6 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ type EmployeeFormValues = {
   role: string;
   project?: string;
   status: string;
+  updates?: string;
 };
 
 interface AddEmployeeFormProps {
@@ -177,6 +179,23 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
                   <SelectItem value="On bench">On bench</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="updates"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Updates</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Enter any updates or notes..."
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

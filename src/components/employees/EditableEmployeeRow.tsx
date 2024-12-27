@@ -1,5 +1,6 @@
 import { Employee } from "@/types/employee";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -73,6 +74,16 @@ const EditableEmployeeRow = ({
             ))}
           </SelectContent>
         </Select>
+      </td>
+      <td className="p-4">
+        <Textarea
+          value={editValues.updates || ""}
+          onChange={(e) =>
+            onEditValuesChange({ ...editValues, updates: e.target.value })
+          }
+          className="resize-none"
+          rows={2}
+        />
       </td>
       <td className="p-4">
         <div className="flex items-center gap-2">

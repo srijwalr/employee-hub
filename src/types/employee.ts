@@ -4,4 +4,5 @@ export interface Employee {
   role: string;
   project: string | null;
   status: string;
+  updates?: string | null;
 }
