@@ -15,14 +15,19 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 
+type TeamMember = {
+  name: string;
+  role: string;
+  updates: string | null;
+};
+
 type ProjectSummary = {
   projectName: string;
-  teamMembers: Array<{
-    name: string;
-    role: string;
-    updates: string | null;
-  }>;
+  coordinators: TeamMember[];
+  teamMembers: TeamMember[];
 };
+
+const LEADERSHIP_ROLES = ['Project Manager', 'Project Coordinator', 'Lead'];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -55,16 +60,23 @@ const Dashboard = () => {
         if (!projectMap.has(employee.project)) {
           projectMap.set(employee.project, {
             projectName: employee.project,
+            coordinators: [],
             teamMembers: [],
           });
         }
 
         const project = projectMap.get(employee.project)!;
-        project.teamMembers.push({
+        const member = {
           name: employee.name,
           role: employee.role,
           updates: employee.updates,
-        });
+        };
+
+        if (LEADERSHIP_ROLES.includes(employee.role)) {
+          project.coordinators.push(member);
+        } else {
+          project.teamMembers.push(member);
+        }
       });
 
       return Array.from(projectMap.values());
@@ -103,6 +115,7 @@ const Dashboard = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Project</TableHead>
+                <TableHead>Coordinators</TableHead>
                 <TableHead>Team Members</TableHead>
                 <TableHead>Current Updates</TableHead>
               </TableRow>
@@ -112,6 +125,16 @@ const Dashboard = () => {
                 <TableRow key={project.projectName}>
                   <TableCell className="font-medium">
                     {project.projectName}
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      {project.coordinators.map((member, index) => (
+                        <div key={index} className="text-sm">
+                          <span className="font-medium">{member.name}</span>
+                          <span className="text-muted-foreground"> - {member.role}</span>
+                        </div>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
@@ -125,7 +148,7 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      {project.teamMembers.map((member, index) => (
+                      {[...project.coordinators, ...project.teamMembers].map((member, index) => (
                         member.updates && (
                           <div key={index} className="text-sm">
                             <span className="font-medium">{member.name}:</span>
