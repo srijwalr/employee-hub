@@ -15,19 +15,14 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 
-type TeamMember = {
-  name: string;
-  role: string;
-  updates: string | null;
-};
-
 type ProjectSummary = {
   projectName: string;
-  coordinators: TeamMember[];
-  teamMembers: TeamMember[];
+  teamMembers: Array<{
+    name: string;
+    role: string;
+    updates: string | null;
+  }>;
 };
-
-const LEADERSHIP_ROLES = ['Project Manager', 'Project Coordinator', 'Lead'];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -45,43 +40,31 @@ const Dashboard = () => {
   const { data: projectSummaries, isLoading } = useQuery({
     queryKey: ["projectSummaries"],
     queryFn: async () => {
-      const { data: employees, error } = await supabase
+      const { data: employees } = await supabase
         .from("employees")
         .select("*")
         .not("project", "is", null);
 
-      if (error) throw error;
       if (!employees) return [];
 
       const projectMap = new Map<string, ProjectSummary>();
 
       employees.forEach((employee) => {
-        // Skip if employee or project is null/undefined
-        if (!employee?.project || !employee?.name || !employee?.role) return;
+        if (!employee.project) return;
 
         if (!projectMap.has(employee.project)) {
           projectMap.set(employee.project, {
             projectName: employee.project,
-            coordinators: [],
             teamMembers: [],
           });
         }
 
-        const project = projectMap.get(employee.project);
-        // Double-check that project exists after get()
-        if (!project) return;
-
-        const member = {
+        const project = projectMap.get(employee.project)!;
+        project.teamMembers.push({
           name: employee.name,
           role: employee.role,
           updates: employee.updates,
-        };
-
-        if (LEADERSHIP_ROLES.includes(employee.role)) {
-          project.coordinators.push(member);
-        } else {
-          project.teamMembers.push(member);
-        }
+        });
       });
 
       return Array.from(projectMap.values());
@@ -120,7 +103,6 @@ const Dashboard = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Project</TableHead>
-                <TableHead>Coordinators</TableHead>
                 <TableHead>Team Members</TableHead>
                 <TableHead>Current Updates</TableHead>
               </TableRow>
@@ -133,28 +115,18 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      {project.coordinators?.map((member, index) => (
+                      {project.teamMembers.map((member, index) => (
                         <div key={index} className="text-sm">
                           <span className="font-medium">{member.name}</span>
                           <span className="text-muted-foreground"> - {member.role}</span>
                         </div>
-                      )) || "No coordinators assigned"}
+                      ))}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      {project.teamMembers?.map((member, index) => (
-                        <div key={index} className="text-sm">
-                          <span className="font-medium">{member.name}</span>
-                          <span className="text-muted-foreground"> - {member.role}</span>
-                        </div>
-                      )) || "No team members assigned"}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      {[...(project.coordinators || []), ...(project.teamMembers || [])].map((member, index) => (
-                        member?.updates && (
+                      {project.teamMembers.map((member, index) => (
+                        member.updates && (
                           <div key={index} className="text-sm">
                             <span className="font-medium">{member.name}:</span>
                             <span className="text-muted-foreground"> {member.updates}</span>
