@@ -1,6 +1,10 @@
 import { Layout } from "@/components/Layout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -21,6 +25,18 @@ type ProjectSummary = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Signed out successfully");
+      navigate("/login");
+    } catch (error) {
+      toast.error("Error signing out");
+    }
+  };
+
   const { data: projectSummaries, isLoading } = useQuery({
     queryKey: ["projectSummaries"],
     queryFn: async () => {
@@ -59,7 +75,13 @@ const Dashboard = () => {
     return (
       <Layout>
         <div className="space-y-8">
-          <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+            <Button variant="outline" onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign out
+            </Button>
+          </div>
           <p>Loading project summaries...</p>
         </div>
       </Layout>
@@ -69,7 +91,13 @@ const Dashboard = () => {
   return (
     <Layout>
       <div className="space-y-8">
-        <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-4xl font-bold text-foreground">Dashboard</h1>
+          <Button variant="outline" onClick={handleSignOut}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign out
+          </Button>
+        </div>
         <Card className="p-6">
           <Table>
             <TableHeader>
