@@ -17,6 +17,11 @@ import { Card } from "@/components/ui/card";
 
 type ProjectSummary = {
   projectName: string;
+  coordinators: Array<{
+    name: string;
+    role: string;
+    updates: string | null;
+  }>;
   teamMembers: Array<{
     name: string;
     role: string;
@@ -40,6 +45,17 @@ const Dashboard = () => {
   const { data: projectSummaries, isLoading } = useQuery({
     queryKey: ["projectSummaries"],
     queryFn: async () => {
+      // First, get all roles to identify coordinators
+      const { data: roles } = await supabase
+        .from("roles")
+        .select("name, type");
+
+      const coordinatorRoles = new Set(
+        roles?.filter(role => role.type === 'coordinator')
+          .map(role => role.name) || []
+      );
+
+      // Then get employees with their projects
       const { data: employees } = await supabase
         .from("employees")
         .select("*")
@@ -55,16 +71,24 @@ const Dashboard = () => {
         if (!projectMap.has(employee.project)) {
           projectMap.set(employee.project, {
             projectName: employee.project,
+            coordinators: [],
             teamMembers: [],
           });
         }
 
         const project = projectMap.get(employee.project)!;
-        project.teamMembers.push({
+        const memberInfo = {
           name: employee.name,
           role: employee.role,
           updates: employee.updates,
-        });
+        };
+
+        // Add to coordinators or team members based on role
+        if (coordinatorRoles.has(employee.role)) {
+          project.coordinators.push(memberInfo);
+        } else {
+          project.teamMembers.push(memberInfo);
+        }
       });
 
       return Array.from(projectMap.values());
@@ -103,6 +127,7 @@ const Dashboard = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Project</TableHead>
+                <TableHead>Coordinators</TableHead>
                 <TableHead>Team Members</TableHead>
                 <TableHead>Current Updates</TableHead>
               </TableRow>
@@ -112,6 +137,16 @@ const Dashboard = () => {
                 <TableRow key={project.projectName}>
                   <TableCell className="font-medium">
                     {project.projectName}
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      {project.coordinators.map((member, index) => (
+                        <div key={index} className="text-sm">
+                          <span className="font-medium">{member.name}</span>
+                          <span className="text-muted-foreground"> - {member.role}</span>
+                        </div>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
@@ -125,7 +160,7 @@ const Dashboard = () => {
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      {project.teamMembers.map((member, index) => (
+                      {[...project.coordinators, ...project.teamMembers].map((member, index) => (
                         member.updates && (
                           <div key={index} className="text-sm">
                             <span className="font-medium">{member.name}:</span>
