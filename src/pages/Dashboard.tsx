@@ -55,40 +55,46 @@ const Dashboard = () => {
           .map(role => role.name) || []
       );
 
-      // Then get employees with their projects
+      // Get employees with their project assignments
       const { data: employees } = await supabase
         .from("employees")
-        .select("*")
-        .not("project", "is", null);
+        .select(`
+          *,
+          employee_projects:employee_projects(
+            project:projects(name)
+          )
+        `);
 
       if (!employees) return [];
 
       const projectMap = new Map<string, ProjectSummary>();
 
       employees.forEach((employee) => {
-        if (!employee.project) return;
+        employee.employee_projects?.forEach((ep) => {
+          const projectName = ep.project?.name;
+          if (!projectName) return;
 
-        if (!projectMap.has(employee.project)) {
-          projectMap.set(employee.project, {
-            projectName: employee.project,
-            coordinators: [],
-            teamMembers: [],
-          });
-        }
+          if (!projectMap.has(projectName)) {
+            projectMap.set(projectName, {
+              projectName,
+              coordinators: [],
+              teamMembers: [],
+            });
+          }
 
-        const project = projectMap.get(employee.project)!;
-        const memberInfo = {
-          name: employee.name,
-          role: employee.role,
-          updates: employee.updates,
-        };
+          const project = projectMap.get(projectName)!;
+          const memberInfo = {
+            name: employee.name,
+            role: employee.role,
+            updates: employee.updates,
+          };
 
-        // Add to coordinators or team members based on role
-        if (coordinatorRoles.has(employee.role)) {
-          project.coordinators.push(memberInfo);
-        } else {
-          project.teamMembers.push(memberInfo);
-        }
+          if (coordinatorRoles.has(employee.role)) {
+            project.coordinators.push(memberInfo);
+          } else {
+            project.teamMembers.push(memberInfo);
+          }
+        });
       });
 
       return Array.from(projectMap.values());

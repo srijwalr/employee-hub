@@ -4,6 +4,8 @@ export interface Employee {
   role: string;
   status: string;
   updates?: string | null;
+  created_at: string;
+  employee_projects?: EmployeeProject[];
 }
 
 export interface EmployeeProject {
@@ -15,3 +17,5 @@ export interface EmployeeProject {
     name: string;
   };
 }
+
+export type NewEmployeeProject = Omit<EmployeeProject, 'id' | 'employee_id'>;

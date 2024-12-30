@@ -17,7 +17,7 @@ import {
 import { useState } from "react";
 import { Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Employee, EmployeeProject } from "@/types/employee";
+import { Employee, EmployeeProject, NewEmployeeProject } from "@/types/employee";
 import ProjectFilter from "./ProjectFilter";
 import EditableEmployeeRow from "./EditableEmployeeRow";
 import DisplayEmployeeRow from "./DisplayEmployeeRow";
@@ -27,7 +27,7 @@ const EmployeesTable = () => {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [editingEmployee, setEditingEmployee] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<Employee>>({});
-  const [editingProjects, setEditingProjects] = useState<Partial<EmployeeProject>[]>([]);
+  const [editingProjects, setEditingProjects] = useState<NewEmployeeProject[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -85,7 +85,7 @@ const EmployeesTable = () => {
     }: {
       id: string;
       updates: Partial<Employee>;
-      projects: Partial<EmployeeProject>[];
+      projects: NewEmployeeProject[];
     }) => {
       // Update employee details
       const { error: employeeError } = await supabase
