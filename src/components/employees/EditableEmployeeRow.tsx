@@ -1,4 +1,4 @@
-import { Employee, EmployeeProject } from "@/types/employee";
+import { Employee, EmployeeProject, NewEmployeeProject } from "@/types/employee";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -13,10 +13,10 @@ import { Button } from "@/components/ui/button";
 interface EditableEmployeeRowProps {
   employee: Employee;
   editValues: Partial<Employee>;
-  employeeProjects: EmployeeProject[];
+  employeeProjects: NewEmployeeProject[];
   projects?: { id: string; name: string }[];
   onEditValuesChange: (values: Partial<Employee>) => void;
-  onProjectsChange: (projects: Partial<EmployeeProject>[]) => void;
+  onProjectsChange: (projects: NewEmployeeProject[]) => void;
   onSave: (id: string) => void;
   onCancel: () => void;
 }
@@ -46,7 +46,7 @@ const EditableEmployeeRow = ({
     onProjectsChange(newProjects);
   };
 
-  const handleProjectChange = (index: number, field: keyof EmployeeProject, value: any) => {
+  const handleProjectChange = (index: number, field: keyof NewEmployeeProject, value: any) => {
     const newProjects = [...employeeProjects];
     newProjects[index] = { ...newProjects[index], [field]: value };
     onProjectsChange(newProjects);

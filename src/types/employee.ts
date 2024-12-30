@@ -18,4 +18,7 @@ export interface EmployeeProject {
   };
 }
 
-export type NewEmployeeProject = Omit<EmployeeProject, 'id' | 'employee_id'>;
+export type NewEmployeeProject = {
+  project_id: string;
+  allocation_percentage: number;
+};

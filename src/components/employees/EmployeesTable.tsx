@@ -145,7 +145,12 @@ const EmployeesTable = () => {
       status: employee.status,
       updates: employee.updates,
     });
-    setEditingProjects(employee.employee_projects);
+    setEditingProjects(
+      employee.employee_projects.map(ep => ({
+        project_id: ep.project_id,
+        allocation_percentage: ep.allocation_percentage
+      }))
+    );
   };
 
   const handleSave = async (id: string) => {
