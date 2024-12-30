@@ -9,12 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      employee_projects: {
+        Row: {
+          allocation_percentage: number | null
+          created_at: string
+          employee_id: string | null
+          id: string
+          project_id: string | null
+        }
+        Insert: {
+          allocation_percentage?: number | null
+          created_at?: string
+          employee_id?: string | null
+          id?: string
+          project_id?: string | null
+        }
+        Update: {
+          allocation_percentage?: number | null
+          created_at?: string
+          employee_id?: string | null
+          id?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_projects_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           created_at: string
           id: string
           name: string
-          project: string | null
           role: string
           status: string | null
           updates: string | null
@@ -23,7 +61,6 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          project?: string | null
           role: string
           status?: string | null
           updates?: string | null
@@ -32,7 +69,6 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
-          project?: string | null
           role?: string
           status?: string | null
           updates?: string | null

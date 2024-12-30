@@ -17,7 +17,7 @@ import {
 import { useState } from "react";
 import { Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Employee } from "@/types/employee";
+import { Employee, EmployeeProject } from "@/types/employee";
 import ProjectFilter from "./ProjectFilter";
 import EditableEmployeeRow from "./EditableEmployeeRow";
 import DisplayEmployeeRow from "./DisplayEmployeeRow";
@@ -27,6 +27,7 @@ const EmployeesTable = () => {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [editingEmployee, setEditingEmployee] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<Employee>>({});
+  const [editingProjects, setEditingProjects] = useState<Partial<EmployeeProject>[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -35,7 +36,7 @@ const EmployeesTable = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projects")
-        .select("name")
+        .select("id, name")
         .order("name");
       if (error) throw error;
       return data;
@@ -45,32 +46,77 @@ const EmployeesTable = () => {
   const { data: employees, isLoading } = useQuery({
     queryKey: ["employees", selectedProject, selectedStatus],
     queryFn: async () => {
-      let query = supabase.from("employees").select("*");
+      let query = supabase
+        .from("employees")
+        .select(`
+          *,
+          employee_projects:employee_projects(
+            id,
+            project_id,
+            allocation_percentage,
+            project:projects(name)
+          )
+        `);
 
-      if (selectedProject) {
-        query = query.eq("project", selectedProject);
-      }
       if (selectedStatus) {
         query = query.eq("status", selectedStatus);
       }
 
       const { data, error } = await query.order("created_at", { ascending: false });
       if (error) throw error;
-      return data as Employee[];
+
+      if (selectedProject) {
+        return (data as any[]).filter(employee => 
+          employee.employee_projects.some((ep: any) => 
+            ep.project?.name === selectedProject
+          )
+        );
+      }
+
+      return data;
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (updates: { id: string } & Partial<Employee>) => {
-      const { data, error } = await supabase
+    mutationFn: async ({
+      id,
+      updates,
+      projects,
+    }: {
+      id: string;
+      updates: Partial<Employee>;
+      projects: Partial<EmployeeProject>[];
+    }) => {
+      // Update employee details
+      const { error: employeeError } = await supabase
         .from("employees")
         .update(updates)
-        .eq("id", updates.id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+        .eq("id", id);
+
+      if (employeeError) throw employeeError;
+
+      // Delete existing project assignments
+      const { error: deleteError } = await supabase
+        .from("employee_projects")
+        .delete()
+        .eq("employee_id", id);
+
+      if (deleteError) throw deleteError;
+
+      // Insert new project assignments
+      if (projects.length > 0) {
+        const { error: projectsError } = await supabase
+          .from("employee_projects")
+          .insert(
+            projects.map((p) => ({
+              employee_id: id,
+              project_id: p.project_id,
+              allocation_percentage: p.allocation_percentage,
+            }))
+          );
+
+        if (projectsError) throw projectsError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
@@ -80,6 +126,7 @@ const EmployeesTable = () => {
       });
       setEditingEmployee(null);
       setEditValues({});
+      setEditingProjects([]);
     },
     onError: (error) => {
       toast({
@@ -90,24 +137,29 @@ const EmployeesTable = () => {
     },
   });
 
-  const handleEdit = (employee: Employee) => {
+  const handleEdit = (employee: Employee & { employee_projects: EmployeeProject[] }) => {
     setEditingEmployee(employee.id);
     setEditValues({
       name: employee.name,
       role: employee.role,
-      project: employee.project,
       status: employee.status,
       updates: employee.updates,
     });
+    setEditingProjects(employee.employee_projects);
   };
 
   const handleSave = async (id: string) => {
-    updateMutation.mutate({ id, ...editValues });
+    updateMutation.mutate({
+      id,
+      updates: editValues,
+      projects: editingProjects,
+    });
   };
 
   const handleCancel = () => {
     setEditingEmployee(null);
     setEditValues({});
+    setEditingProjects([]);
   };
 
   const statuses = ["Available", "Assigned", "On Leave", "Inactive", "On bench"];
@@ -125,7 +177,7 @@ const EmployeesTable = () => {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Role</TableHead>
-            <TableHead>Assigned Project</TableHead>
+            <TableHead>Projects</TableHead>
             <TableHead>
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2">
@@ -165,21 +217,24 @@ const EmployeesTable = () => {
               </TableCell>
             </TableRow>
           ) : (
-            employees?.map((employee) => (
+            employees?.map((employee: any) => (
               <TableRow key={employee.id}>
                 {editingEmployee === employee.id ? (
                   <EditableEmployeeRow
                     employee={employee}
                     editValues={editValues}
+                    employeeProjects={editingProjects}
                     projects={projects}
                     onEditValuesChange={setEditValues}
+                    onProjectsChange={setEditingProjects}
                     onSave={handleSave}
                     onCancel={handleCancel}
                   />
                 ) : (
                   <DisplayEmployeeRow
                     employee={employee}
-                    onEdit={handleEdit}
+                    employeeProjects={employee.employee_projects}
+                    onEdit={() => handleEdit(employee)}
                   />
                 )}
               </TableRow>

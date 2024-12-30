@@ -20,11 +20,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+
+type ProjectAssignment = {
+  project_id: string;
+  allocation_percentage: number;
+};
 
 type EmployeeFormValues = {
   name: string;
   role: string;
-  project?: string;
   status: string;
   updates?: string;
 };
@@ -34,6 +40,7 @@ interface AddEmployeeFormProps {
 }
 
 const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
+  const [projectAssignments, setProjectAssignments] = useState<ProjectAssignment[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const form = useForm<EmployeeFormValues>({
@@ -55,11 +62,49 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
     },
   });
 
+  const handleAddProject = () => {
+    setProjectAssignments([
+      ...projectAssignments,
+      { project_id: "", allocation_percentage: 0 }
+    ]);
+  };
+
+  const handleRemoveProject = (index: number) => {
+    const newAssignments = [...projectAssignments];
+    newAssignments.splice(index, 1);
+    setProjectAssignments(newAssignments);
+  };
+
+  const handleProjectChange = (index: number, field: keyof ProjectAssignment, value: any) => {
+    const newAssignments = [...projectAssignments];
+    newAssignments[index] = { ...newAssignments[index], [field]: value };
+    setProjectAssignments(newAssignments);
+  };
+
   const onSubmit = async (values: EmployeeFormValues) => {
     try {
-      const { error } = await supabase.from("employees").insert([values]);
+      // Insert employee
+      const { data: employee, error: employeeError } = await supabase
+        .from("employees")
+        .insert([values])
+        .select()
+        .single();
       
-      if (error) throw error;
+      if (employeeError) throw employeeError;
+
+      // Insert project assignments if any
+      if (projectAssignments.length > 0) {
+        const { error: projectsError } = await supabase
+          .from("employee_projects")
+          .insert(
+            projectAssignments.map(assignment => ({
+              employee_id: employee.id,
+              ...assignment
+            }))
+          );
+        
+        if (projectsError) throw projectsError;
+      }
 
       toast({
         title: "Success",
@@ -68,6 +113,7 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
 
       queryClient.invalidateQueries({ queryKey: ["employees"] });
       form.reset();
+      setProjectAssignments([]);
       onSuccess();
     } catch (error) {
       console.error("Error adding employee:", error);
@@ -129,33 +175,65 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="project"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Project (Optional)</FormLabel>
+
+        <div className="space-y-2">
+          <FormLabel>Project Assignments</FormLabel>
+          {projectAssignments.map((assignment, index) => (
+            <div key={index} className="flex items-center gap-2">
               <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
+                value={assignment.project_id}
+                onValueChange={(value) =>
+                  handleProjectChange(index, "project_id", value)
+                }
               >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a project" />
-                  </SelectTrigger>
-                </FormControl>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
                 <SelectContent>
                   {projects?.map((project) => (
-                    <SelectItem key={project.id} value={project.name}>
+                    <SelectItem key={project.id} value={project.id}>
                       {project.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={assignment.allocation_percentage}
+                onChange={(e) =>
+                  handleProjectChange(
+                    index,
+                    "allocation_percentage",
+                    parseInt(e.target.value) || 0
+                  )
+                }
+                className="w-20"
+              />
+              <span>%</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleRemoveProject(index)}
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddProject}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Project
+          </Button>
+        </div>
+
         <FormField
           control={form.control}
           name="status"
