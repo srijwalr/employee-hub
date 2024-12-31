@@ -9,9 +9,7 @@ interface DisplayEmployeeRowProps {
 
 const DisplayEmployeeRow = ({ employee, employeeProjects, onEdit }: DisplayEmployeeRowProps) => {
   const projectsDisplay = employeeProjects.length > 0
-    ? employeeProjects.map(ep => 
-        `${ep.project?.name || '—'} (${ep.allocation_percentage}%)`
-      ).join(', ')
+    ? employeeProjects.map(ep => ep.project?.name || '—').join(', ')
     : '—';
 
   return (
