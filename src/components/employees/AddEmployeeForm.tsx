@@ -92,6 +92,20 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
       
       if (employeeError) throw employeeError;
 
+      // Log the change
+      const { error: historyError } = await supabase
+        .from("change_history")
+        .insert([
+          {
+            table_name: "employees",
+            record_id: employee.id,
+            change_type: "create",
+            changes: values,
+          },
+        ]);
+
+      if (historyError) throw historyError;
+
       // Insert project assignments if any
       if (projectAssignments.length > 0) {
         const { error: projectsError } = await supabase
@@ -112,6 +126,7 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
       });
 
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["employee-changes"] });
       form.reset();
       setProjectAssignments([]);
       onSuccess();

@@ -21,6 +21,7 @@ import { Employee, EmployeeProject, NewEmployeeProject } from "@/types/employee"
 import ProjectFilter from "./ProjectFilter";
 import EditableEmployeeRow from "./EditableEmployeeRow";
 import DisplayEmployeeRow from "./DisplayEmployeeRow";
+import EmployeeChangeHistory from "./EmployeeChangeHistory";
 
 const EmployeesTable = () => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -95,6 +96,20 @@ const EmployeesTable = () => {
 
       if (employeeError) throw employeeError;
 
+      // Log the change
+      const { error: historyError } = await supabase
+        .from("change_history")
+        .insert([
+          {
+            table_name: "employees",
+            record_id: id,
+            change_type: "update",
+            changes: updates,
+          },
+        ]);
+
+      if (historyError) throw historyError;
+
       // Delete existing project assignments
       const { error: deleteError } = await supabase
         .from("employee_projects")
@@ -120,6 +135,7 @@ const EmployeesTable = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries({ queryKey: ["employee-changes"] });
       toast({
         title: "Success",
         description: "Employee updated successfully",
@@ -247,6 +263,8 @@ const EmployeesTable = () => {
           )}
         </TableBody>
       </Table>
+
+      <EmployeeChangeHistory />
     </div>
   );
 };
