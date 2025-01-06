@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import type { Json } from "@/integrations/supabase/types";
 
 type ProjectAssignment = {
   project_id: string;
@@ -105,6 +106,20 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
         
         if (projectsError) throw projectsError;
       }
+
+      // Log the change in change_history
+      const changeData = {
+        table_name: 'employees',
+        record_id: employee.id,
+        change_type: 'insert',
+        changes: JSON.parse(JSON.stringify(values)) as Json
+      };
+
+      const { error: historyError } = await supabase
+        .from('change_history')
+        .insert([changeData]);
+
+      if (historyError) throw historyError;
 
       toast({
         title: "Success",

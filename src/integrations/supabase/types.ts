@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      change_history: {
+        Row: {
+          change_type: string
+          changes: Json
+          created_at: string
+          created_by: string
+          id: string
+          record_id: string
+          table_name: string
+        }
+        Insert: {
+          change_type: string
+          changes: Json
+          created_at?: string
+          created_by?: string
+          id?: string
+          record_id: string
+          table_name: string
+        }
+        Update: {
+          change_type?: string
+          changes?: Json
+          created_at?: string
+          created_by?: string
+          id?: string
+          record_id?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
       employee_projects: {
         Row: {
           allocation_percentage: number | null
