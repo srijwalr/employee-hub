@@ -18,6 +18,7 @@ import { useState } from "react";
 import { Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Employee, EmployeeProject, NewEmployeeProject } from "@/types/employee";
+import { Json } from "@/integrations/supabase/types";
 import ProjectFilter from "./ProjectFilter";
 import EditableEmployeeRow from "./EditableEmployeeRow";
 import DisplayEmployeeRow from "./DisplayEmployeeRow";
@@ -97,11 +98,16 @@ const EmployeesTable = () => {
       if (employeeError) throw employeeError;
 
       // Log the change - Convert updates to a plain object for JSON compatibility
-      const changeData = {
+      const changeData: {
+        table_name: string;
+        record_id: string;
+        change_type: string;
+        changes: Json;
+      } = {
         table_name: "employees",
         record_id: id,
         change_type: "update",
-        changes: JSON.parse(JSON.stringify(updates))
+        changes: JSON.parse(JSON.stringify(updates)) as Json
       };
 
       const { error: historyError } = await supabase
