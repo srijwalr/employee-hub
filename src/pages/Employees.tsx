@@ -15,7 +15,6 @@ import AddEmployeeForm from "@/components/employees/AddEmployeeForm";
 import EmployeesTable from "@/components/employees/EmployeesTable";
 import FreeResourcesTable from "@/components/employees/FreeResourcesTable";
 import { AddRoleForm } from "@/components/roles/AddRoleForm";
-import { FilteredChangeHistory } from "@/components/history/FilteredChangeHistory";
 
 const Employees = () => {
   const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = useState(false);
@@ -58,26 +57,20 @@ const Employees = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="md:col-span-2">
-            <Tabs defaultValue="employees" className="p-4">
-              <TabsList>
-                <TabsTrigger value="employees">Employees</TabsTrigger>
-                <TabsTrigger value="free-resources">Free Resources</TabsTrigger>
-              </TabsList>
-              <TabsContent value="employees">
-                <EmployeesTable />
-              </TabsContent>
-              <TabsContent value="free-resources">
-                <FreeResourcesTable />
-              </TabsContent>
-            </Tabs>
-          </Card>
-          <Card className="p-4">
-            <h2 className="text-lg font-semibold mb-4">Change History</h2>
-            <FilteredChangeHistory tableName="employees" />
-          </Card>
-        </div>
+        <Card>
+          <Tabs defaultValue="employees" className="p-4">
+            <TabsList>
+              <TabsTrigger value="employees">Employees</TabsTrigger>
+              <TabsTrigger value="free-resources">Free Resources</TabsTrigger>
+            </TabsList>
+            <TabsContent value="employees">
+              <EmployeesTable />
+            </TabsContent>
+            <TabsContent value="free-resources">
+              <FreeResourcesTable />
+            </TabsContent>
+          </Tabs>
+        </Card>
       </div>
     </Layout>
   );

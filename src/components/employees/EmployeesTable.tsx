@@ -77,25 +77,6 @@ const EmployeesTable = () => {
     },
   });
 
-  const logChange = async (
-    recordId: string,
-    changeType: string,
-    changes: Record<string, any>
-  ) => {
-    const { error } = await supabase.from("change_history").insert([
-      {
-        table_name: "employees",
-        record_id: recordId,
-        change_type: changeType,
-        changes,
-      },
-    ]);
-
-    if (error) {
-      console.error("Error logging change:", error);
-    }
-  };
-
   const updateMutation = useMutation({
     mutationFn: async ({
       id,
@@ -136,15 +117,6 @@ const EmployeesTable = () => {
 
         if (projectsError) throw projectsError;
       }
-
-      // Log the change
-      await logChange(id, "update", {
-        ...updates,
-        projects: projects.map(p => ({
-          project_id: p.project_id,
-          allocation_percentage: p.allocation_percentage
-        }))
-      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] });

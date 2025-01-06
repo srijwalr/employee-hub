@@ -106,35 +106,12 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
         if (projectsError) throw projectsError;
       }
 
-      // Get the current user's email
-      const { data: { user } } = await supabase.auth.getUser();
-      const userIdentifier = user?.email || 'system';
-
-      // Log the change
-      const { error: historyError } = await supabase
-        .from("change_history")
-        .insert([
-          {
-            table_name: "employees",
-            record_id: employee.id,
-            change_type: "create",
-            changes: {
-              ...values,
-              projects: projectAssignments
-            },
-            created_by: userIdentifier,
-          },
-        ]);
-
-      if (historyError) throw historyError;
-
       toast({
         title: "Success",
         description: "Employee added successfully",
       });
 
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      queryClient.invalidateQueries({ queryKey: ["change-history"] });
       form.reset();
       setProjectAssignments([]);
       onSuccess();
