@@ -92,25 +92,6 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
       
       if (employeeError) throw employeeError;
 
-      // Log the change - Convert values to a plain object for JSON compatibility
-      const changeData: {
-        table_name: string;
-        record_id: string;
-        change_type: string;
-        changes: Json;
-      } = {
-        table_name: "employees",
-        record_id: employee.id,
-        change_type: "create",
-        changes: JSON.parse(JSON.stringify(values)) as Json
-      };
-
-      const { error: historyError } = await supabase
-        .from("change_history")
-        .insert(changeData);
-
-      if (historyError) throw historyError;
-
       // Insert project assignments if any
       if (projectAssignments.length > 0) {
         const { error: projectsError } = await supabase
@@ -131,7 +112,6 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
       });
 
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      queryClient.invalidateQueries({ queryKey: ["employee-changes"] });
       form.reset();
       setProjectAssignments([]);
       onSuccess();
