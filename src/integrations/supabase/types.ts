@@ -14,7 +14,7 @@ export type Database = {
           change_type: string
           changes: Json
           created_at: string
-          created_by: string | null
+          created_by: string
           id: string
           record_id: string
           table_name: string
@@ -23,7 +23,7 @@ export type Database = {
           change_type: string
           changes: Json
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           id?: string
           record_id: string
           table_name: string
@@ -32,7 +32,7 @@ export type Database = {
           change_type?: string
           changes?: Json
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           id?: string
           record_id?: string
           table_name?: string

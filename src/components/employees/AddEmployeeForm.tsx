@@ -106,6 +106,10 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
         if (projectsError) throw projectsError;
       }
 
+      // Get the current user's email
+      const { data: { user } } = await supabase.auth.getUser();
+      const userIdentifier = user?.email || 'system';
+
       // Log the change
       const { error: historyError } = await supabase
         .from("change_history")
@@ -118,6 +122,7 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
               ...values,
               projects: projectAssignments
             },
+            created_by: userIdentifier,
           },
         ]);
 

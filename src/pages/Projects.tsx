@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
 import { Plus } from "lucide-react";
 import AddProjectForm from "@/components/projects/AddProjectForm";
 import ProjectsTable from "@/components/projects/ProjectsTable";
+import { FilteredChangeHistory } from "@/components/history/FilteredChangeHistory";
 
 const Projects = () => {
   const [open, setOpen] = useState(false);
@@ -35,7 +37,16 @@ const Projects = () => {
             </DialogContent>
           </Dialog>
         </div>
-        <ProjectsTable />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <Card className="md:col-span-2">
+            <ProjectsTable />
+          </Card>
+          <Card className="p-4">
+            <h2 className="text-lg font-semibold mb-4">Change History</h2>
+            <FilteredChangeHistory tableName="projects" />
+          </Card>
+        </div>
       </div>
     </Layout>
   );
