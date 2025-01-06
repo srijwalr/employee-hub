@@ -96,17 +96,17 @@ const EmployeesTable = () => {
 
       if (employeeError) throw employeeError;
 
-      // Log the change
+      // Log the change - Convert updates to a plain object for JSON compatibility
+      const changeData = {
+        table_name: "employees",
+        record_id: id,
+        change_type: "update",
+        changes: JSON.parse(JSON.stringify(updates))
+      };
+
       const { error: historyError } = await supabase
         .from("change_history")
-        .insert([
-          {
-            table_name: "employees",
-            record_id: id,
-            change_type: "update",
-            changes: updates,
-          },
-        ]);
+        .insert(changeData);
 
       if (historyError) throw historyError;
 

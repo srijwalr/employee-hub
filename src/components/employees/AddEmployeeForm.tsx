@@ -92,17 +92,17 @@ const AddEmployeeForm = ({ onSuccess }: AddEmployeeFormProps) => {
       
       if (employeeError) throw employeeError;
 
-      // Log the change
+      // Log the change - Convert values to a plain object for JSON compatibility
+      const changeData = {
+        table_name: "employees",
+        record_id: employee.id,
+        change_type: "create",
+        changes: JSON.parse(JSON.stringify(values))
+      };
+
       const { error: historyError } = await supabase
         .from("change_history")
-        .insert([
-          {
-            table_name: "employees",
-            record_id: employee.id,
-            change_type: "create",
-            changes: values,
-          },
-        ]);
+        .insert(changeData);
 
       if (historyError) throw historyError;
 
