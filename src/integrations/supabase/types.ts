@@ -138,6 +138,47 @@ export type Database = {
         }
         Relationships: []
       }
+      resource_requests: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          project_id: string | null
+          quantity: number
+          requested_by: string
+          role: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          quantity?: number
+          requested_by: string
+          role: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          quantity?: number
+          requested_by?: string
+          role?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       roles: {
         Row: {
           created_at: string

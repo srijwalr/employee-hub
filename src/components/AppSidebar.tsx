@@ -1,4 +1,4 @@
-import { Users, Briefcase, LayoutDashboard } from "lucide-react";
+import { Users, Briefcase, LayoutDashboard, FileText } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +15,7 @@ const menuItems = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/" },
   { title: "Employees", icon: Users, path: "/employees" },
   { title: "Projects", icon: Briefcase, path: "/projects" },
+  { title: "Requests", icon: FileText, path: "/requests" },
 ];
 
 export function AppSidebar() {

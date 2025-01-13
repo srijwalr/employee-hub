@@ -7,6 +7,7 @@ import Employees from "./pages/Employees";
 import Projects from "./pages/Projects";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
+import Requests from "./pages/Requests";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Projects />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/requests"
+            element={
+              <ProtectedRoute>
+                <Requests />
               </ProtectedRoute>
             }
           />
