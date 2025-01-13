@@ -13,9 +13,14 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Check, X } from "lucide-react";
+import { Check, X, Filter } from "lucide-react";
 import { subDays } from "date-fns";
-import ProjectFilter from "@/components/employees/ProjectFilter";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Request {
   id: string;
@@ -52,7 +57,6 @@ const RequestsTable = () => {
   const { data: requests, isLoading } = useQuery({
     queryKey: ["requests"],
     queryFn: async () => {
-      // Calculate date 7 days ago
       const oneWeekAgo = subDays(new Date(), 7).toISOString();
 
       const { data, error } = await supabase
@@ -112,76 +116,99 @@ const RequestsTable = () => {
     : requests;
 
   return (
-    <div className="space-y-4">
-      <ProjectFilter
-        projects={uniqueProjects}
-        selectedProject={selectedProject}
-        onProjectChange={setSelectedProject}
-      />
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Project</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Requested By</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Notes</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Actions</TableHead>
+    <Card>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>
+              <div className="flex items-center gap-2">
+                Project
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Filter className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem
+                      onClick={() => setSelectedProject(null)}
+                      className={!selectedProject ? "bg-accent" : ""}
+                    >
+                      All Projects
+                    </DropdownMenuItem>
+                    {uniqueProjects.map((project) => (
+                      <DropdownMenuItem
+                        key={project.name}
+                        onClick={() => setSelectedProject(project.name)}
+                        className={
+                          selectedProject === project.name ? "bg-accent" : ""
+                        }
+                      >
+                        {project.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Quantity</TableHead>
+            <TableHead>Requested By</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Notes</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {filteredRequests.map((request) => (
+            <TableRow key={request.id}>
+              <TableCell className="font-medium">
+                {request.project?.name || "Unknown Project"}
+              </TableCell>
+              <TableCell>{request.role}</TableCell>
+              <TableCell>{request.quantity}</TableCell>
+              <TableCell>{request.requested_by}</TableCell>
+              <TableCell>
+                <Badge className={getStatusColor(request.status)}>
+                  {request.status}
+                </Badge>
+              </TableCell>
+              <TableCell>{request.notes || "—"}</TableCell>
+              <TableCell>
+                {new Date(request.created_at).toLocaleDateString()}
+              </TableCell>
+              <TableCell>
+                {request.status === "Pending" && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="bg-green-50 hover:bg-green-100"
+                      onClick={() =>
+                        updateStatus.mutate({ id: request.id, status: "Approved" })
+                      }
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="bg-red-50 hover:bg-red-100"
+                      onClick={() =>
+                        updateStatus.mutate({ id: request.id, status: "Rejected" })
+                      }
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredRequests.map((request) => (
-              <TableRow key={request.id}>
-                <TableCell className="font-medium">
-                  {request.project?.name || "Unknown Project"}
-                </TableCell>
-                <TableCell>{request.role}</TableCell>
-                <TableCell>{request.quantity}</TableCell>
-                <TableCell>{request.requested_by}</TableCell>
-                <TableCell>
-                  <Badge className={getStatusColor(request.status)}>
-                    {request.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>{request.notes || "—"}</TableCell>
-                <TableCell>
-                  {new Date(request.created_at).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  {request.status === "Pending" && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="bg-green-50 hover:bg-green-100"
-                        onClick={() =>
-                          updateStatus.mutate({ id: request.id, status: "Approved" })
-                        }
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="bg-red-50 hover:bg-red-100"
-                        onClick={() =>
-                          updateStatus.mutate({ id: request.id, status: "Rejected" })
-                        }
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-    </div>
+          ))}
+        </TableBody>
+      </Table>
+    </Card>
   );
 };
 
