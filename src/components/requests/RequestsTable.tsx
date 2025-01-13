@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Check, X } from "lucide-react";
 import { subDays } from "date-fns";
+import ProjectFilter from "@/components/employees/ProjectFilter";
 
 interface Request {
   id: string;
@@ -45,6 +47,7 @@ const getStatusColor = (status: string) => {
 const RequestsTable = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
   const { data: requests, isLoading } = useQuery({
     queryKey: ["requests"],
@@ -98,70 +101,87 @@ const RequestsTable = () => {
     return <div>No resource requests found.</div>;
   }
 
+  const uniqueProjects = Array.from(
+    new Set(requests.map((request) => request.project?.name))
+  )
+    .filter(Boolean)
+    .map((name) => ({ name: name as string }));
+
+  const filteredRequests = selectedProject
+    ? requests.filter((request) => request.project?.name === selectedProject)
+    : requests;
+
   return (
-    <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Project</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Requested By</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Notes</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {requests.map((request) => (
-            <TableRow key={request.id}>
-              <TableCell className="font-medium">
-                {request.project?.name || "Unknown Project"}
-              </TableCell>
-              <TableCell>{request.role}</TableCell>
-              <TableCell>{request.quantity}</TableCell>
-              <TableCell>{request.requested_by}</TableCell>
-              <TableCell>
-                <Badge className={getStatusColor(request.status)}>
-                  {request.status}
-                </Badge>
-              </TableCell>
-              <TableCell>{request.notes || "—"}</TableCell>
-              <TableCell>
-                {new Date(request.created_at).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
-                {request.status === "Pending" && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-green-50 hover:bg-green-100"
-                      onClick={() =>
-                        updateStatus.mutate({ id: request.id, status: "Approved" })
-                      }
-                    >
-                      <Check className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-red-50 hover:bg-red-100"
-                      onClick={() =>
-                        updateStatus.mutate({ id: request.id, status: "Rejected" })
-                      }
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </TableCell>
+    <div className="space-y-4">
+      <ProjectFilter
+        projects={uniqueProjects}
+        selectedProject={selectedProject}
+        onProjectChange={setSelectedProject}
+      />
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Project</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Requested By</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Notes</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Card>
+          </TableHeader>
+          <TableBody>
+            {filteredRequests.map((request) => (
+              <TableRow key={request.id}>
+                <TableCell className="font-medium">
+                  {request.project?.name || "Unknown Project"}
+                </TableCell>
+                <TableCell>{request.role}</TableCell>
+                <TableCell>{request.quantity}</TableCell>
+                <TableCell>{request.requested_by}</TableCell>
+                <TableCell>
+                  <Badge className={getStatusColor(request.status)}>
+                    {request.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>{request.notes || "—"}</TableCell>
+                <TableCell>
+                  {new Date(request.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  {request.status === "Pending" && (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="bg-green-50 hover:bg-green-100"
+                        onClick={() =>
+                          updateStatus.mutate({ id: request.id, status: "Approved" })
+                        }
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="bg-red-50 hover:bg-red-100"
+                        onClick={() =>
+                          updateStatus.mutate({ id: request.id, status: "Rejected" })
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
+    </div>
   );
 };
 
