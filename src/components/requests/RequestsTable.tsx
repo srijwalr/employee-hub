@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { Check, X } from "lucide-react";
+import { subDays } from "date-fns";
 
 interface Request {
   id: string;
@@ -48,12 +49,16 @@ const RequestsTable = () => {
   const { data: requests, isLoading } = useQuery({
     queryKey: ["requests"],
     queryFn: async () => {
+      // Calculate date 7 days ago
+      const oneWeekAgo = subDays(new Date(), 7).toISOString();
+
       const { data, error } = await supabase
         .from("resource_requests")
         .select(`
           *,
           project:projects(name)
         `)
+        .or(`status.neq.Approved,and(status.eq.Approved,created_at.gt.${oneWeekAgo})`)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
