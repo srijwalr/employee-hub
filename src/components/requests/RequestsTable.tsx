@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { Check, X } from "lucide-react";
 
 interface Request {
   id: string;
@@ -39,6 +42,9 @@ const getStatusColor = (status: string) => {
 };
 
 const RequestsTable = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const { data: requests, isLoading } = useQuery({
     queryKey: ["requests"],
     queryFn: async () => {
@@ -52,6 +58,30 @@ const RequestsTable = () => {
 
       if (error) throw error;
       return data as Request[];
+    },
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase
+        .from("resource_requests")
+        .update({ status })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+      toast({
+        title: "Success",
+        description: "Request status updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update request status: " + error.message,
+      });
     },
   });
 
@@ -75,6 +105,7 @@ const RequestsTable = () => {
             <TableHead>Status</TableHead>
             <TableHead>Notes</TableHead>
             <TableHead>Date</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -94,6 +125,32 @@ const RequestsTable = () => {
               <TableCell>{request.notes || "—"}</TableCell>
               <TableCell>
                 {new Date(request.created_at).toLocaleDateString()}
+              </TableCell>
+              <TableCell>
+                {request.status === "Pending" && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="bg-green-50 hover:bg-green-100"
+                      onClick={() =>
+                        updateStatus.mutate({ id: request.id, status: "Approved" })
+                      }
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="bg-red-50 hover:bg-red-100"
+                      onClick={() =>
+                        updateStatus.mutate({ id: request.id, status: "Rejected" })
+                      }
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
               </TableCell>
             </TableRow>
           ))}
