@@ -9,7 +9,208 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      change_history: {
+        Row: {
+          change_type: string
+          changes: Json
+          created_at: string | null
+          id: string
+          record_id: string
+          table_name: string
+        }
+        Insert: {
+          change_type: string
+          changes: Json
+          created_at?: string | null
+          id?: string
+          record_id: string
+          table_name: string
+        }
+        Update: {
+          change_type?: string
+          changes?: Json
+          created_at?: string | null
+          id?: string
+          record_id?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
+      employee_projects: {
+        Row: {
+          allocation_percentage: number | null
+          created_at: string | null
+          employee_id: string | null
+          id: string
+          project_id: string | null
+        }
+        Insert: {
+          allocation_percentage?: number | null
+          created_at?: string | null
+          employee_id?: string | null
+          id?: string
+          project_id?: string | null
+        }
+        Update: {
+          allocation_percentage?: number | null
+          created_at?: string | null
+          employee_id?: string | null
+          id?: string
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_projects_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employees: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          role: string
+          status: string
+          updates: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          role: string
+          status: string
+          updates?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          role?: string
+          status?: string
+          updates?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          allocation: number | null
+          code: string
+          created_at: string | null
+          deadline: string | null
+          id: string
+          manager_id: string | null
+          name: string
+          status: string | null
+          updates: string | null
+        }
+        Insert: {
+          allocation?: number | null
+          code: string
+          created_at?: string | null
+          deadline?: string | null
+          id?: string
+          manager_id?: string | null
+          name: string
+          status?: string | null
+          updates?: string | null
+        }
+        Update: {
+          allocation?: number | null
+          code?: string
+          created_at?: string | null
+          deadline?: string | null
+          id?: string
+          manager_id?: string | null
+          name?: string
+          status?: string | null
+          updates?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_requests: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          project_id: string | null
+          quantity: number
+          requested_by: string
+          role: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          quantity: number
+          requested_by: string
+          role: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string | null
+          quantity?: number
+          requested_by?: string
+          role?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_requests_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
