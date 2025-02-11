@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -21,6 +22,17 @@ import { Employee, EmployeeProject, NewEmployeeProject } from "@/types/employee"
 import ProjectFilter from "./ProjectFilter";
 import EditableEmployeeRow from "./EditableEmployeeRow";
 import DisplayEmployeeRow from "./DisplayEmployeeRow";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ITEMS_PER_PAGE = 10;
 
 const EmployeesTable = () => {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
@@ -28,6 +40,7 @@ const EmployeesTable = () => {
   const [editingEmployee, setEditingEmployee] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<Employee>>({});
   const [editingProjects, setEditingProjects] = useState<NewEmployeeProject[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -43,7 +56,7 @@ const EmployeesTable = () => {
     },
   });
 
-  const { data: employees, isLoading } = useQuery({
+  const { data: employeesData, isLoading } = useQuery({
     queryKey: ["employees", selectedProject, selectedStatus],
     queryFn: async () => {
       let query = supabase
@@ -169,6 +182,30 @@ const EmployeesTable = () => {
 
   const statuses = ["Available", "Assigned", "On Leave", "Inactive", "On bench"];
 
+  // Pagination calculations
+  const totalEmployees = employeesData?.length || 0;
+  const totalPages = Math.ceil(totalEmployees / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentEmployees = employeesData?.slice(startIndex, endIndex) || [];
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - 1 && i <= currentPage + 1)
+      ) {
+        pages.push(i);
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        pages.push("ellipsis");
+      }
+    }
+    return pages;
+  };
+
   return (
     <div className="space-y-4">
       <ProjectFilter
@@ -215,14 +252,14 @@ const EmployeesTable = () => {
                 Loading...
               </TableCell>
             </TableRow>
-          ) : employees?.length === 0 ? (
+          ) : currentEmployees.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center">
                 No employees found
               </TableCell>
             </TableRow>
           ) : (
-            employees?.map((employee: any) => (
+            currentEmployees.map((employee: any) => (
               <TableRow key={employee.id}>
                 {editingEmployee === employee.id ? (
                   <EditableEmployeeRow
@@ -247,6 +284,48 @@ const EmployeesTable = () => {
           )}
         </TableBody>
       </Table>
+
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            {currentPage > 1 && (
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  className="cursor-pointer"
+                />
+              </PaginationItem>
+            )}
+
+            {getPageNumbers().map((page, index) =>
+              page === "ellipsis" ? (
+                <PaginationItem key={`ellipsis-${index}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(Number(page))}
+                    isActive={currentPage === page}
+                    className="cursor-pointer"
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+
+            {currentPage < totalPages && (
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  className="cursor-pointer"
+                />
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 };
