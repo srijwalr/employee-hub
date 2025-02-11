@@ -109,6 +109,7 @@ export type Database = {
           created_at: string | null
           deadline: string | null
           id: string
+          manager_id: string | null
           name: string
           status: string | null
           updates: string | null
@@ -119,6 +120,7 @@ export type Database = {
           created_at?: string | null
           deadline?: string | null
           id?: string
+          manager_id?: string | null
           name: string
           status?: string | null
           updates?: string | null
@@ -129,11 +131,20 @@ export type Database = {
           created_at?: string | null
           deadline?: string | null
           id?: string
+          manager_id?: string | null
           name?: string
           status?: string | null
           updates?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resource_requests: {
         Row: {
