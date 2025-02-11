@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/Layout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,8 +45,18 @@ const Dashboard = () => {
   const { data: projectSummaries, isLoading } = useQuery({
     queryKey: ["projectSummaries"],
     queryFn: async () => {
-      // Get employees with their project assignments and roles
-      const { data: employees, error } = await supabase
+      // First, get all roles to identify coordinators
+      const { data: roles } = await supabase
+        .from("roles")
+        .select("name, type");
+
+      const coordinatorRoles = new Set(
+        roles?.filter(role => role.type === 'coordinator')
+          .map(role => role.name) || []
+      );
+
+      // Get employees with their project assignments
+      const { data: employees } = await supabase
         .from("employees")
         .select(`
           *,
@@ -56,18 +65,7 @@ const Dashboard = () => {
           )
         `);
 
-      if (error) throw error;
       if (!employees) return [];
-
-      // Get roles to identify coordinators
-      const { data: roles } = await supabase
-        .from("roles")
-        .select("name, type");
-
-      if (!roles) return [];
-
-      // Create a map of role names to their types
-      const roleTypes = new Map(roles.map(role => [role.name, role.type]));
 
       const projectMap = new Map<string, ProjectSummary>();
 
@@ -91,8 +89,7 @@ const Dashboard = () => {
             updates: employee.updates,
           };
 
-          const roleType = roleTypes.get(employee.role);
-          if (roleType === 'coordinator') {
+          if (coordinatorRoles.has(employee.role)) {
             project.coordinators.push(memberInfo);
           } else {
             project.teamMembers.push(memberInfo);
